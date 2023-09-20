@@ -25,40 +25,9 @@ $(function () {
     var minutes = currentTime.getMinutes();
     var seconds = currentTime.getSeconds();
 
+    createTimeSlots();
     startTimer();
 
-    for (var i = 9; i < 18; i++) {
-        if (i > 12) {
-            hourDisplay = i - 12 + "PM";
-        } else if (i <= 12) {
-            hourDisplay = i + "AM";
-        }
-
-        var timeSlot = $(
-            '<div id="hour-' +
-                i +
-                '" class="row time-block past">' +
-                '<div class="col-2 col-md-1 hour text-center py-3">' +
-                hourDisplay +
-                "</div>" +
-                '<textarea class="col-8 col-md-10 description" rows="3"></textarea>' +
-                '<button class="btn saveBtn col-2 col-md-1" aria-label="save">' +
-                '<i class="fas fa-save" aria-hidden="true"></i>' +
-                "</button>" +
-                "</div>"
-        );
-
-        if (i > hours) {
-            $(timeSlot).addClass("future");
-        } else if (i < hours) {
-            $(timeSlot).addClass("past");
-        } else {
-            $(timeSlot).addClass("present");
-        }
-
-        calendarContainer.append(timeSlot);
-        console.log(timeSlot.hour);
-    }
     $(calendarContainer).click(saveEvent);
     establishLocalStorage();
     updateCalendar();
@@ -128,20 +97,53 @@ $(function () {
     }
 
     function updateCalendar() {
+        var hourSlot = '"#hour-' + (0 + 9) + '"';
+        var array = calendarContainer.children().toArray();
         for (var i = 0; i < localStorage.length; i++) {
-            var textBox = calendarContainer.children("textarea");
-            console.log("TextArea: " + textBox);
             var storedText = localStorage.getItem("hour-" + (i + 9));
-            textBox.val(storedText);
-            console.log(textBox.val());
+            $(array[i]).children("textarea").val(storedText);
         }
     }
 
     function establishLocalStorage() {
         for (var i = 0; i < calendarContainer.children().length; i++) {
-            if (localStorage.length === 0) {
+            if (localStorage.length < 9) {
                 localStorage.setItem("hour-" + (i + 9), "");
             }
+        }
+    }
+
+    function createTimeSlots() {
+        for (var i = 9; i < 18; i++) {
+            if (i > 12) {
+                hourDisplay = i - 12 + "PM";
+            } else if (i <= 12) {
+                hourDisplay = i + "AM";
+            }
+
+            var timeSlot = $(
+                '<div id="hour-' +
+                    i +
+                    '" class="row time-block past">' +
+                    '<div class="col-2 col-md-1 hour text-center py-3">' +
+                    hourDisplay +
+                    "</div>" +
+                    '<textarea class="col-8 col-md-10 description" rows="3"></textarea>' +
+                    '<button class="btn saveBtn col-2 col-md-1" aria-label="save">' +
+                    '<i class="fas fa-save" aria-hidden="true"></i>' +
+                    "</button>" +
+                    "</div>"
+            );
+
+            if (i > hours) {
+                $(timeSlot).addClass("future");
+            } else if (i < hours) {
+                $(timeSlot).addClass("past");
+            } else {
+                $(timeSlot).addClass("present");
+            }
+
+            calendarContainer.append(timeSlot);
         }
     }
 
