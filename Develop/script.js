@@ -59,50 +59,94 @@ $(function () {
         calendarContainer.append(timeSlot);
         console.log(timeSlot.hour);
     }
+    $(calendarContainer).click(saveEvent);
+    establishLocalStorage();
+    updateCalendar();
+
+    console.log(calendarContainer.children());
+    console.log(calendarContainer.children().length);
 
     // ----------------------------------------------------
     function startTimer() {
         setInterval(function () {
             var dateTime = new Date();
-
             var dayOfTheWeek = dateTime.getDay();
             var year = dateTime.getFullYear();
             var month = dateTime.getMonth();
             var date = dateTime.getDate();
-            var hour = dateTime.getHours();
-            var minute = dateTime.getMinutes();
-            var second = dateTime.getSeconds();
 
-            if (hour > 12) {
-                hour -= 12;
-            }
+            var days = [
+                "Sunday",
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+            ];
 
-            if (second < 10) {
-                second = "0" + second;
-            }
-
-            if (minute < 10) {
-                minute = "0" + minute;
-            }
+            var months = [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+            ];
 
             var output =
-                month +
-                "/" +
+                days[dayOfTheWeek] +
+                ", " +
+                months[month] +
+                ", " +
                 date +
-                "/" +
-                year +
-                " " +
-                hour +
-                ":" +
-                minute +
-                ":" +
-                second;
+                ", " +
+                year;
 
             $("#currentDay").text(output);
         }, 1000);
     }
 
     // ----------------------------------------------------
+    function saveEvent(eventObj) {
+        var clickedButton = eventObj.target;
+        var parent = $(clickedButton).parent();
+        var textinput = $(clickedButton).prev().val();
+
+        if (clickedButton.tagName === "BUTTON") {
+            localStorage.setItem(parent.attr("id"), textinput);
+            console.log(clickedButton);
+            console.log(parent.attr("id"));
+            console.log("Text: " + textinput);
+        }
+    }
+
+    function updateCalendar() {
+        for (var i = 0; i < localStorage.length; i++) {
+            var textBox = calendarContainer.children("textarea");
+            console.log("TextArea: " + textBox);
+            var storedText = localStorage.getItem("hour-" + (i + 9));
+            textBox.val(storedText);
+            console.log(textBox.val());
+        }
+    }
+
+    function establishLocalStorage() {
+        for (var i = 0; i < calendarContainer.children().length; i++) {
+            if (localStorage.length === 0) {
+                localStorage.setItem("hour-" + (i + 9), "");
+            }
+        }
+    }
+
+    // ----------------------------------------------------
+
     //
     // TODO: Add code to get any user input that was saved in localStorage and set
     // the values of the corresponding textarea elements. HINT: How can the id
