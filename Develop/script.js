@@ -15,30 +15,21 @@ $(function () {
     // past, present, and future classes? How can Day.js be used to get the
     // current hour in 24-hour time?
 
-    var calendarContainer = $(".container-fluid");
-    var hourDisplay = "";
-    var currentTime = new Date();
-    var year = currentTime.getFullYear();
-    var month = currentTime.getMonth();
-    var days = currentTime.getDate();
-    var hours = currentTime.getHours();
-    var minutes = currentTime.getMinutes();
-    var seconds = currentTime.getSeconds();
+    const calendarContainer = $(".container-fluid");
+    let hourDisplay = "";
+    const dateTime = new Date();
+    let hours = dateTime.getHours();
 
-    createTimeSlots();
+    generateCalendarTimeSlots();
     startTimer();
 
-    $(calendarContainer).click(saveEvent);
-    establishLocalStorage();
+    $(calendarContainer).on("click", "button", saveEvent);
+    initializeLocalStorage();
     updateCalendar();
-
-    console.log(calendarContainer.children());
-    console.log(calendarContainer.children().length);
 
     // ----------------------------------------------------
     function startTimer() {
         setInterval(function () {
-            var dateTime = new Date();
             var dayOfTheWeek = dateTime.getDay();
             var year = dateTime.getFullYear();
             var month = dateTime.getMonth();
@@ -85,19 +76,17 @@ $(function () {
     // ----------------------------------------------------
     function saveEvent(eventObj) {
         var clickedButton = eventObj.target;
-        var parent = $(clickedButton).parent();
-        var textinput = $(clickedButton).prev().val();
+        var container = $(clickedButton).parent();
+        var inputValue = $(clickedButton).prev().val();
 
-        if (clickedButton.tagName === "BUTTON") {
-            localStorage.setItem(parent.attr("id"), textinput);
-            console.log(clickedButton);
-            console.log(parent.attr("id"));
-            console.log("Text: " + textinput);
-        }
+        localStorage.setItem(container.attr("id"), inputValue);
     }
+    // ----------------------------------------------------
+    // JQUERY MODIFICATION
+
+    // ----------------------------------------------------
 
     function updateCalendar() {
-        var hourSlot = '"#hour-' + (0 + 9) + '"';
         var array = calendarContainer.children().toArray();
         for (var i = 0; i < localStorage.length; i++) {
             var storedText = localStorage.getItem("hour-" + (i + 9));
@@ -105,7 +94,12 @@ $(function () {
         }
     }
 
-    function establishLocalStorage() {
+    // ----------------------------------------------------
+    // JQUERY MODIFICATION
+
+    // ----------------------------------------------------
+
+    function initializeLocalStorage() {
         for (var i = 0; i < calendarContainer.children().length; i++) {
             if (localStorage.length < 9) {
                 localStorage.setItem("hour-" + (i + 9), "");
@@ -113,7 +107,12 @@ $(function () {
         }
     }
 
-    function createTimeSlots() {
+    // ----------------------------------------------------
+    // JQUERY MODIFICATION
+
+    // ----------------------------------------------------
+
+    function generateCalendarTimeSlots() {
         for (var i = 9; i < 18; i++) {
             if (i > 12) {
                 hourDisplay = i - 12 + "PM";
@@ -121,19 +120,29 @@ $(function () {
                 hourDisplay = i + "AM";
             }
 
-            var timeSlot = $(
-                '<div id="hour-' +
-                    i +
-                    '" class="row time-block past">' +
-                    '<div class="col-2 col-md-1 hour text-center py-3">' +
-                    hourDisplay +
-                    "</div>" +
-                    '<textarea class="col-8 col-md-10 description" rows="3"></textarea>' +
-                    '<button class="btn saveBtn col-2 col-md-1" aria-label="save">' +
-                    '<i class="fas fa-save" aria-hidden="true"></i>' +
-                    "</button>" +
-                    "</div>"
-            );
+            var timeSlot = $("<div>")
+                .attr("id", "hour-" + i)
+                .addClass("row time-block past")
+                .append(
+                    $("<div>")
+                        .addClass("col-2 col-md-1 hour text-center py-3")
+                        .text(hourDisplay)
+                )
+                .append(
+                    $("<textarea>")
+                        .addClass("col-8 col-md-10 description")
+                        .attr("rows", "3")
+                )
+                .append(
+                    $("<button>")
+                        .addClass("btn saveBtn col-2 col-md-1")
+                        .attr("aria-label", "save")
+                        .append(
+                            $("<i>")
+                                .addClass("fas fa-save")
+                                .attr("aria-hidden", "true")
+                        )
+                );
 
             if (i > hours) {
                 $(timeSlot).addClass("future");
