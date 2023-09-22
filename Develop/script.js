@@ -1,33 +1,30 @@
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
 $(function () {
-    // TODO: Add a listener for click events on the save button. This code should
-    // use the id in the containing time-block as a key to save the user input in
-    // local storage. HINT: What does `this` reference in the click listener
-    // function? How can DOM traversal be used to get the "hour-x" id of the
-    // time-block containing the button that was clicked? How might the id be
-    // useful when saving the description in local storage?
-    //
-    // TODO: Add code to apply the past, present, or future class to each time
-    // block by comparing the id to the current hour. HINTS: How can the id
-    // attribute of each time-block be used to conditionally add or remove the
-    // past, present, and future classes? How can Day.js be used to get the
-    // current hour in 24-hour time?
-
+    // VARIABLES
+    // ----------------------------------------------------
     const calendarContainer = $(".container-fluid");
-    let hourDisplay = "";
     const dateTime = new Date();
-    let hours = dateTime.getHours();
+    const hours = dateTime.getHours();
 
+    let hourDisplay = "";
+
+    // INITIALIZATION
+    // ----------------------------------------------------
     generateCalendarTimeSlots();
     startTimer();
 
+    // EVENT HANDLERS
+    // ----------------------------------------------------
     $(calendarContainer).on("click", "button", saveEvent);
+
+    // LOCAL STORAGE
+    // ----------------------------------------------------
     initializeLocalStorage();
     updateCalendar();
 
+    // FUNCTIONS
     // ----------------------------------------------------
+
+    // Starts a timer that will update the current date and calendar display.
     function startTimer() {
         setInterval(function () {
             var dayOfTheWeek = dateTime.getDay();
@@ -60,12 +57,12 @@ $(function () {
                 "December",
             ];
 
-            var output =
+            const output =
                 days[dayOfTheWeek] +
                 ", " +
                 months[month] +
                 ", " +
-                date +
+                addNumberSuffix(date) +
                 ", " +
                 year;
 
@@ -73,31 +70,22 @@ $(function () {
         }, 1000);
     }
 
-    // ----------------------------------------------------
+    // Saves user input from the textarea element to the local storage.
     function saveEvent(eventObj) {
-        var clickedButton = eventObj.target;
-        var container = $(clickedButton).parent();
-        var inputValue = $(clickedButton).prev().val();
+        var clickedButton = $(eventObj.target);
+        var container = clickedButton.parent();
+        var inputValue = clickedButton.prev().val();
 
         localStorage.setItem(container.attr("id"), inputValue);
     }
-    // ----------------------------------------------------
-    // JQUERY MODIFICATION
 
-    // ----------------------------------------------------
-
+    // Updates calendar with the information stored in local storage.
     function updateCalendar() {
-        var array = calendarContainer.children().toArray();
-        for (var i = 0; i < localStorage.length; i++) {
-            var storedText = localStorage.getItem("hour-" + (i + 9));
-            $(array[i]).children("textarea").val(storedText);
-        }
+        calendarContainer.children().each(function (index) {
+            var storedText = localStorage.getItem("hour-" + (index + 9));
+            $(this).children("textarea").val(storedText);
+        });
     }
-
-    // ----------------------------------------------------
-    // JQUERY MODIFICATION
-
-    // ----------------------------------------------------
 
     function initializeLocalStorage() {
         for (var i = 0; i < calendarContainer.children().length; i++) {
@@ -107,18 +95,10 @@ $(function () {
         }
     }
 
-    // ----------------------------------------------------
-    // JQUERY MODIFICATION
-
-    // ----------------------------------------------------
-
+    // Generates the individual calendar time slots and appends them to the container.
     function generateCalendarTimeSlots() {
         for (var i = 9; i < 18; i++) {
-            if (i > 12) {
-                hourDisplay = i - 12 + "PM";
-            } else if (i <= 12) {
-                hourDisplay = i + "AM";
-            }
+            var hourDisplay = i > 12 ? i - 12 + "PM" : i + "AM";
 
             var timeSlot = $("<div>")
                 .attr("id", "hour-" + i)
@@ -156,12 +136,21 @@ $(function () {
         }
     }
 
-    // ----------------------------------------------------
-
-    //
-    // TODO: Add code to get any user input that was saved in localStorage and set
-    // the values of the corresponding textarea elements. HINT: How can the id
-    // attribute of each time-block be used to do this?
-    //
-    // TODO: Add code to display the current date in the header of the page.
+    // Adds appropriate suffix to the date.
+    function addNumberSuffix(num) {
+        if (num >= 10 && num <= 20) {
+            return num + "th";
+        } else {
+            var lastDigit = num % 10;
+            if (lastDigit === 1) {
+                return num + "st";
+            } else if (lastDigit === 2) {
+                return num + "nd";
+            } else if (lastDigit === 3) {
+                return num + "rd";
+            } else {
+                return num + "th";
+            }
+        }
+    }
 });
